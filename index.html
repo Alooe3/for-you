@@ -122,6 +122,7 @@
 </head>
 <body>
 
+    <!-- Экран 1: Приглашение -->
     <div class="container" id="step1">
         <p class="subtitle">Personal Invitation</p>
         <h1 class="heading">
@@ -133,41 +134,45 @@
         <button class="btn" onclick="goToForm()">Принять</button>
     </div>
 
+    <!-- Экран 2: Пожелания -->
     <div class="container hidden" id="step2">
         <p class="subtitle">Твои пожелания</p>
         <h1 class="heading" style="font-size: 22px; margin-bottom: 30px;">Давай сделаем этот вечер идеальным</h1>
         
-        <div class="form-group">
-            <label for="dateTime">Когда тебе удобно? (Дата и время)</label>
-            <input type="text" id="dateTime" placeholder="Например: Пятница, в 19:00" required>
-        </div>
+        <!-- Форма отправки на твой email -->
+        <form id="dateForm" action="https://formspree.io" method="POST" onsubmit="sendData(event)">
+            <div class="form-group">
+                <label for="dateTime">Когда тебе удобно? (Дата и время)</label>
+                <input type="text" id="dateTime" name="Когда удобно" placeholder="Например: Пятница, в 19:00" required>
+            </div>
 
-        <div class="form-group">
-            <label for="preferences">Что бы ты хотела? (Ресторан, кухня, цветы или капризы)</label>
-            <textarea id="preferences" placeholder="Твои особые пожелания..."></textarea>
-        </div>
+            <div class="form-group">
+                <label for="preferences">Что бы ты хотела? (Ресторан, кухня, цветы или капризы)</label>
+                <textarea id="preferences" name="Пожелания Ангелины" placeholder="Твои особые пожелания..."></textarea>
+            </div>
 
-        <button class="btn" id="submitBtn" onclick="sendData()">Отправить</button>
+            <button type="submit" class="btn" id="submitBtn">Отправить</button>
+        </form>
     </div>
 
+    <!-- Экран 3: Финал -->
     <div class="container hidden" id="step3">
         <h2>Прекрасный выбор.</h2>
-        <p style="margin-top: 20px;">Твои пожелания отправлены мне лично.<br>До встречи в назначенное время. Готовь лучший наряд.</p>
+        <p style="margin-top: 20px;">Твои пожелания отправлены мне на почту.<br>До встречи в назначенное время. Готовь лучший наряд.</p>
     </div>
 
     <script>
-        const TG_BOT_TOKEN = '8832696602:AAFS2DsbA5gFvwej7-k_a2Drau-wuAd_T8w';
-        const TG_CHAT_ID = '8273658632';
-
         function goToForm() {
             document.getElementById('step1').classList.add('hidden');
             document.getElementById('step2').classList.remove('hidden');
         }
 
-        async function sendData() {
-            const dateTime = document.getElementById('dateTime').value.trim();
-            const preferences = document.getElementById('preferences').value.trim();
+        async function sendData(event) {
+            event.preventDefault(); // Предотвращаем перезагрузку страницы
+            
+            const form = document.getElementById('dateForm');
             const btn = document.getElementById('submitBtn');
+            const dateTime = document.getElementById('dateTime').value.trim();
 
             if (!dateTime) {
                 alert('Пожалуйста, укажи удобное время');
@@ -177,18 +182,11 @@
             btn.disabled = true;
             btn.innerText = 'Отправка...';
 
-            const text = `🔔 *Новый ответ от Ангелины!* \n\n📅 *Время:* ${dateTime}\n✨ *Пожелания:* ${preferences || 'Нет особых пожеланий'}`;
-            const url = `https://telegram.org{TG_BOT_TOKEN}/sendMessage`;
-
             try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: TG_CHAT_ID,
-                        text: text,
-                        parse_mode: 'Markdown'
-                    })
+                const response = await fetch(form.action, {
+                    method: form.method,
+                    body: new FormData(form),
+                    headers: { 'Accept': 'application/json' }
                 });
 
                 if (response.ok) {
@@ -206,3 +204,5 @@
     </script>
 </body>
 </html>
+
+      
