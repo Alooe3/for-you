@@ -104,6 +104,17 @@
             resize: none;
             height: 60px;
         }
+        .success-screen h2 {
+            font-size: 30px;
+            font-weight: 300;
+            color: #d4af37;
+            margin-bottom: 20px;
+        }
+        .success-screen p {
+            color: #a6a6a6;
+            font-size: 16px;
+            line-height: 1.6;
+        }
         @keyframes fadeIn {
             to { opacity: 1; }
         }
@@ -128,20 +139,23 @@
         <p class="subtitle">Твои пожелания</p>
         <h1 class="heading" style="font-size: 22px; margin-bottom: 30px;">Давай сделаем этот вечер идеальным</h1>
         
-        <!-- Прямая отправка формы без капризных скриптов -->
-        <form action="https://formspree.io" method="POST">
-            <div class="form-group">
-                <label>Когда тебе удобно? (Дата и время)</label>
-                <input type="text" name="Когда удобно" placeholder="Например: Пятница, в 19:00" required>
-            </div>
+        <div class="form-group">
+            <label for="dateTime">Когда тебе удобно? (Дата и время)</label>
+            <input type="text" id="dateTime" placeholder="Например: Пятница, в 19:00" required>
+        </div>
 
-            <div class="form-group">
-                <label>Что бы ты хотела? (Ресторан, кухня, цветы или капризы)</label>
-                <textarea name="Пожелания Ангелины" placeholder="Твои особые пожелания..."></textarea>
-            </div>
+        <div class="form-group">
+            <label for="preferences">Что бы ты хотела? (Ресторан, кухня, цветы или капризы)</label>
+            <textarea id="preferences" placeholder="Твои особые пожелания..."></textarea>
+        </div>
 
-            <button type="submit" class="btn">Отправить</button>
-        </form>
+        <button class="btn" id="submitBtn" onclick="sendToSheets()">Отправить</button>
+    </div>
+
+    <!-- Экран 3: Финал -->
+    <div class="container hidden" id="step3">
+        <h2>Прекрасный выбор.</h2>
+        <p style="margin-top: 20px;">Твои пожелания отправлены мне лично.<br>До встречи в назначенное время. Готовь лучший наряд.</p>
     </div>
 
     <script>
@@ -149,9 +163,54 @@
             document.getElementById('step1').classList.add('hidden');
             document.getElementById('step2').classList.remove('hidden');
         }
+
+        async function sendToSheets() {
+            const dateTime = document.getElementById('dateTime').value.trim();
+            const preferences = document.getElementById('preferences').value.trim();
+            const btn = document.getElementById('submitBtn');
+
+            if (!dateTime) {
+                alert('Пожалуйста, укажи удобное время');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = 'Отправка...';
+
+            // Используем надежный шлюз Sheetdb для отправки в Google Таблицу
+            const url = 'https://sheetdb.io';
+            
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        data: [{
+                            "Имя": "Ангелина Николаевна",
+                            "Время": dateTime,
+                            "Пожелания": preferences || "Нет особых пожеланий"
+                        }]
+                    })
+                });
+
+                if (response.ok) {
+                    document.getElementById('step2').classList.add('hidden');
+                    document.getElementById('step3').classList.remove('hidden');
+                } else {
+                    alert('Ошибка при отправке, но я все равно тебя жду!');
+                    btn.disabled = false;
+                    btn.innerText = 'Отправить';
+                }
+            } catch (error) {
+                alert('Ошибка сети, попробуй еще раз');
+                btn.disabled = false;
+                btn.innerText = 'Отправить';
+            }
+        }
     </script>
 </body>
 </html>
 
-     
-  
+           
+           
+    
