@@ -19,6 +19,7 @@
             align-items: center;
             min-height: 100vh;
             padding: 20px;
+            overflow: hidden;
         }
         .container {
             max-width: 500px;
@@ -73,37 +74,6 @@
         .hidden {
             display: none !important;
         }
-        .form-group {
-            text-align: left;
-            margin-bottom: 25px;
-        }
-        .form-group label {
-            display: block;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: #8c8c8c;
-            margin-bottom: 10px;
-        }
-        .form-group input, .form-group textarea {
-            width: 100%;
-            background: transparent;
-            border: none;
-            border-bottom: 1px solid #404040;
-            color: #ffffff;
-            padding: 10px 0;
-            font-size: 16px;
-            outline: none;
-            transition: border-color 0.3s;
-            font-family: inherit;
-        }
-        .form-group input:focus, .form-group textarea:focus {
-            border-bottom: 1px solid #d4af37;
-        }
-        textarea {
-            resize: none;
-            height: 60px;
-        }
         .success-screen h2 {
             font-size: 30px;
             font-weight: 300;
@@ -114,6 +84,48 @@
             color: #a6a6a6;
             font-size: 16px;
             line-height: 1.6;
+        }
+        /* Анимация галочки */
+        .checkmark-wrapper {
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: center;
+        }
+        .checkmark {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: block;
+            stroke-width: 2;
+            stroke: #d4af37;
+            stroke-miterlimit: 10;
+            box-shadow: inset 0px 0px 0px #d4af37;
+            animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s forwards;
+        }
+        .checkmark__circle {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke-width: 2;
+            stroke-miterlimit: 10;
+            stroke: #d4af37;
+            fill: none;
+            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
+        .checkmark__check {
+            transform-origin: 50% 50%;
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
+        }
+        @keyframes stroke {
+            100% { stroke-dashoffset: 0; }
+        }
+        @keyframes scale {
+            0%, 100% { transform: none; }
+            50% { transform: scale3d(1.1, 1.1, 1); }
+        }
+        @keyframes fill {
+            100% { box-shadow: inset 0px 0px 0px 30px transparent; }
         }
         @keyframes fadeIn {
             to { opacity: 1; }
@@ -131,86 +143,35 @@
             Приглашаю тебя на красивый ужин.<br>
             <span class="irony">И вроде с красивым мужчиной...</span>
         </h1>
-        <button class="btn" onclick="goToForm()">Принять</button>
+        <button class="btn" onclick="acceptInvitation()">Принять</button>
     </div>
 
-    <!-- Экран 2: Пожелания -->
-    <div class="container hidden" id="step2">
-        <p class="subtitle">Твои пожелания</p>
-        <h1 class="heading" style="font-size: 22px; margin-bottom: 30px;">Давай сделаем этот вечер идеальным</h1>
-        
-        <div class="form-group">
-            <label for="dateTime">Когда тебе удобно? (Дата и время)</label>
-            <input type="text" id="dateTime" placeholder="Например: Пятница, в 19:00" required>
+    <!-- Экран 2: Финал с красивой галочкой -->
+    <div class="container hidden success-screen" id="step2">
+        <div class="checkmark-wrapper">
+            <svg class="checkmark" xmlns="http://w3.org" viewBox="0 0 52 52">
+                <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+            </svg>
         </div>
-
-        <div class="form-group">
-            <label for="preferences">Что бы ты хотела? (Ресторан, кухня, цветы или капризы)</label>
-            <textarea id="preferences" placeholder="Твои особые пожелания..."></textarea>
-        </div>
-
-        <button class="btn" id="submitBtn" onclick="sendToSheets()">Отправить</button>
-    </div>
-
-    <!-- Экран 3: Финал -->
-    <div class="container hidden" id="step3">
         <h2>Прекрасный выбор.</h2>
-        <p style="margin-top: 20px;">Твои пожелания отправлены мне лично.<br>До встречи в назначенное время. Готовь лучший наряд.</p>
+        <p>Приглашение официально принято.<br>До встречи в назначенное время. Готовь лучший наряд.</p>
     </div>
 
     <script>
-        function goToForm() {
-            document.getElementById('step1').classList.add('hidden');
-            document.getElementById('step2').classList.remove('hidden');
-        }
-
-        async function sendToSheets() {
-            const dateTime = document.getElementById('dateTime').value.trim();
-            const preferences = document.getElementById('preferences').value.trim();
-            const btn = document.getElementById('submitBtn');
-
-            if (!dateTime) {
-                alert('Пожалуйста, укажи удобное время');
-                return;
-            }
-
-            btn.disabled = true;
-            btn.innerText = 'Отправка...';
-
-            // Используем надежный шлюз Sheetdb для отправки в Google Таблицу
-            const url = 'https://sheetdb.io';
+        function acceptInvitation() {
+            const step1 = document.getElementById('step1');
+            const step2 = document.getElementById('step2');
             
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        data: [{
-                            "Имя": "Ангелина Николаевна",
-                            "Время": dateTime,
-                            "Пожелания": preferences || "Нет особых пожеланий"
-                        }]
-                    })
-                });
-
-                if (response.ok) {
-                    document.getElementById('step2').classList.add('hidden');
-                    document.getElementById('step3').classList.remove('hidden');
-                } else {
-                    alert('Ошибка при отправке, но я все равно тебя жду!');
-                    btn.disabled = false;
-                    btn.innerText = 'Отправить';
-                }
-            } catch (error) {
-                alert('Ошибка сети, попробуй еще раз');
-                btn.disabled = false;
-                btn.innerText = 'Отправить';
-            }
+            step1.classList.add('hidden');
+            step2.classList.remove('hidden');
         }
     </script>
 </body>
 </html>
 
+      
            
+   
+         
            
-    
