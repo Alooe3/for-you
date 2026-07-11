@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Особое приглашение</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0d0d0d;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            opacity: 0;
+            animation: fadeIn 1.5s ease-in-out forwards;
+        }
+        .subtitle {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #8c8c8c;
+            margin-bottom: 25px;
+        }
+        .heading {
+            font-size: 26px;
+            font-weight: 300;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            letter-spacing: 0.5px;
+        }
+        .highlight {
+            color: #d4af37;
+            font-weight: 400;
+        }
+        .irony {
+            font-size: 15px;
+            color: #a6a6a6;
+            font-style: italic;
+            margin-top: 15px;
+            display: block;
+        }
+        .btn {
+            background: none;
+            border: 1px solid #ffffff;
+            color: #ffffff;
+            padding: 14px 40px;
+            font-size: 14px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 0;
+            transition: all 0.4s ease;
+            margin-top: 20px;
+            width: auto;
+        }
+        .btn:hover {
+            background-color: #ffffff;
+            color: #0d0d0d;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .form-group {
+            text-align: left;
+            margin-bottom: 25px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #8c8c8c;
+            margin-bottom: 10px;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #404040;
+            color: #ffffff;
+            padding: 10px 0;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+        .form-group input:focus, .form-group textarea:focus {
+            border-bottom: 1px solid #d4af37;
+        }
+        textarea {
+            resize: none;
+            height: 60px;
+        }
+        .success-screen h2 {
+            font-size: 30px;
+            font-weight: 300;
+            color: #d4af37;
+            margin-bottom: 20px;
+        }
+        .success-screen p {
+            color: #a6a6a6;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="step1">
+        <p class="subtitle">Personal Invitation</p>
+        <h1 class="heading">
+            Любимая моя, <span class="highlight">Ангелина Николаевна</span>,<br>
+            я знаю, как давно ты ждала этого момента, и вот он настал.<br><br>
+            Приглашаю тебя на красивый ужин.<br>
+            <span class="irony">И вроде с красивым мужчиной...</span>
+        </h1>
+        <button class="btn" onclick="goToForm()">Принять</button>
+    </div>
+
+    <div class="container hidden" id="step2">
+        <p class="subtitle">Твои пожелания</p>
+        <h1 class="heading" style="font-size: 22px; margin-bottom: 30px;">Давай сделаем этот вечер идеальным</h1>
+        
+        <div class="form-group">
+            <label for="dateTime">Когда тебе удобно? (Дата и время)</label>
+            <input type="text" id="dateTime" placeholder="Например: Пятница, в 19:00" required>
+        </div>
+
+        <div class="form-group">
+            <label for="preferences">Что бы ты хотела? (Ресторан, кухня, цветы или капризы)</label>
+            <textarea id="preferences" placeholder="Твои особые пожелания..."></textarea>
+        </div>
+
+        <button class="btn" id="submitBtn" onclick="sendData()">Отправить</button>
+    </div>
+
+    <div class="container hidden" id="step3">
+        <h2>Прекрасный выбор.</h2>
+        <p style="margin-top: 20px;">Твои пожелания отправлены мне лично.<br>До встречи в назначенное время. Готовь лучший наряд.</p>
+    </div>
+
+    <script>
+        const TG_BOT_TOKEN = '8832696602:AAFS2DsbA5gFvwej7-k_a2Drau-wuAd_T8w';
+        const TG_CHAT_ID = '8273658632';
+
+        function goToForm() {
+            document.getElementById('step1').classList.add('hidden');
+            document.getElementById('step2').classList.remove('hidden');
+        }
+
+        async function sendData() {
+            const dateTime = document.getElementById('dateTime').value.trim();
+            const preferences = document.getElementById('preferences').value.trim();
+            const btn = document.getElementById('submitBtn');
+
+            if (!dateTime) {
+                alert('Пожалуйста, укажи удобное время');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = 'Отправка...';
+
+            const text = `🔔 *Новый ответ от Ангелины!* \n\n📅 *Время:* ${dateTime}\n✨ *Пожелания:* ${preferences || 'Нет особых пожеланий'}`;
+            const url = `https://telegram.org{TG_BOT_TOKEN}/sendMessage`;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: TG_CHAT_ID,
+                        text: text,
+                        parse_mode: 'Markdown'
+                    })
+                });
+
+                if (response.ok) {
+                    document.getElementById('step2').classList.add('hidden');
+                    document.getElementById('step3').classList.remove('hidden');
+                } else {
+                    alert('Что-то пошло не так, но я все равно тебя жду!');
+                }
+            } catch (error) {
+                alert('Ошибка сети, попробуй еще раз');
+                btn.disabled = false;
+                btn.innerText = 'Отправить';
+            }
+        }
+    </script>
+</body>
+</html>
